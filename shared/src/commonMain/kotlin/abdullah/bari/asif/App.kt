@@ -1,18 +1,79 @@
 package abdullah.bari.asif
 
 import abdullah.bari.asif.model.NewsArticle
+import abdullah.bari.asif.model.NewsSource
+import abdullah.bari.asif.repository.NewsSourceRepository
+import abdullah.bari.asif.ui.FetchInterval
 import abdullah.bari.asif.ui.HomeScreen
+import abdullah.bari.asif.ui.SettingsScreen
+import abdullah.bari.asif.ui.StoreScreen
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+enum class Screen { HOME, STORE, SETTINGS }
 
 @Composable
 fun App(
-    articles: List<NewsArticle> = defaultSampleArticles
+    articles: List<NewsArticle> = defaultSampleArticles,
+    sources: List<NewsSource> = defaultSampleSources,
+    onToggleInstallSource: ((NewsSource, Boolean) -> Unit)? = null,
+    onClearCache: (() -> Unit)? = null
 ) {
+    var currentScreen by remember { mutableStateOf(Screen.HOME) }
+    var sourceList by remember(sources) { mutableStateOf(sources) }
+    var articleList by remember(articles) { mutableStateOf(articles) }
+
+    var selectedInterval by remember { mutableStateOf(FetchInterval.HOUR_1) }
+    var syncWifiOnly by remember { mutableStateOf(false) }
+    var syncWhenCharging by remember { mutableStateOf(false) }
+
     MaterialTheme {
-        HomeScreen(articles = articles)
+        when (currentScreen) {
+            Screen.HOME -> {
+                HomeScreen(
+                    articles = articleList,
+                    onStoreClick = { currentScreen = Screen.STORE },
+                    onSettingsClick = { currentScreen = Screen.SETTINGS }
+                )
+            }
+            Screen.STORE -> {
+                StoreScreen(
+                    sources = sourceList,
+                    onToggleInstall = { source, install ->
+                        sourceList = sourceList.map {
+                            if (it.id == source.id) it.copy(isInstalled = install) else it
+                        }
+                        onToggleInstallSource?.invoke(source, install)
+                    },
+                    onBackClick = { currentScreen = Screen.HOME }
+                )
+            }
+            Screen.SETTINGS -> {
+                SettingsScreen(
+                    currentInterval = selectedInterval,
+                    syncWifiOnly = syncWifiOnly,
+                    syncWhenCharging = syncWhenCharging,
+                    onIntervalChange = { selectedInterval = it },
+                    onWifiOnlyChange = { syncWifiOnly = it },
+                    onSyncWhenChargingChange = { syncWhenCharging = it },
+                    onClearCacheClick = {
+                        articleList = emptyList()
+                        onClearCache?.invoke()
+                    },
+                    onBackClick = { currentScreen = Screen.HOME }
+                )
+            }
+        }
     }
 }
+
+private val repository = NewsSourceRepository()
+private val defaultSampleSources = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
+    .map { it.copy(isInstalled = true) }
 
 private val defaultSampleArticles = listOf(
     NewsArticle(
