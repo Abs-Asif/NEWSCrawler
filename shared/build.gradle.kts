@@ -40,6 +40,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.sqlite.jdbc)
             }
         }
         val commonTest by getting {

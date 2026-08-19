@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.jetbrains.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -73,4 +74,10 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.coil.compose)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.ktor.client.core)
+    implementation(libs.kotlinx.serialization.json)
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.sqlite.jdbc)
+    testImplementation(kotlin("test"))
 }
