@@ -1,0 +1,55 @@
+[
+  {
+    "id": "med_news_today_rss",
+    "name": "Medical News Today",
+    "baseUrl": "https://www.medicalnewstoday.com",
+    "imageUrl": "https://www.medicalnewstoday.com/favicon.ico",
+    "updatedAt": "2025.02.18.12.00",
+    "fetchUrl": "https://www.medicalnewstoday.com/rss/featurednews.xml",
+    "logic": {
+      "type": "RSS",
+      "selectors": {
+        "itemSelector": "item",
+        "titleSelector": "title",
+        "linkSelector": "link",
+        "imageSelector": "media:content",
+        "dateSelector": "pubDate"
+      }
+    }
+  },
+  {
+    "id": "who_sitemap",
+    "name": "World Health Organization News",
+    "baseUrl": "https://www.who.int",
+    "imageUrl": "https://www.who.int/favicon.ico",
+    "updatedAt": "2025.02.18.12.00",
+    "fetchUrl": "https://www.who.int/sitemap-{year}-{month}.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "dateFormatPattern": "yyyy-MM",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "nih_news_custom",
+    "name": "NIH Research Matters",
+    "baseUrl": "https://www.nih.gov",
+    "imageUrl": "https://www.nih.gov/favicon.ico",
+    "updatedAt": "2025.02.18.12.00",
+    "fetchUrl": "https://www.nih.gov/news-events/news-releases",
+    "logic": {
+      "type": "CUSTOM_HTML",
+      "selectors": {
+        "containerSelector": "li.news-item",
+        "titleSelector": "h3.title a",
+        "linkSelector": "h3.title a[href]",
+        "imageSelector": "img.thumbnail[src]",
+        "dateSelector": "span.date"
+      }
+    }
+  }
+]
