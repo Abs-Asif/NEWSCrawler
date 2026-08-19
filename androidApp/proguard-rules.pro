@@ -1,15 +1,55 @@
-# Keep Ktor classes and serialization
--keep class io.ktor.** { *; }
--keep class kotlinx.serialization.** { *; }
--keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+# Keep attributes for reflection and serialization
+-keepattributes *Annotation*,ElementValuePairs,Signature,InnerClasses,EnclosingMethod
 
-# Keep SQLite & SQLDelight / DB drivers
+# Keep Kotlinx Serialization
+-keep class kotlinx.serialization.** { *; }
+-keepclassmembers class * {
+    @kotlinx.serialization.Serializable *;
+}
+-keepclassmembers class * {
+    *** Companion;
+}
+-keepclassmembers class * {
+    *** $serializer;
+}
+-keep class * implements kotlinx.serialization.KSerializer {
+    *;
+}
+-keepclassmembers class * implements kotlinx.serialization.KSerializer {
+    *;
+}
+
+# Keep Ktor
+-keep class io.ktor.** { *; }
+
+# Keep SQLite & DB drivers
 -keep class androidx.sqlite.** { *; }
 -keep class org.sqlite.** { *; }
 
-# Keep App Data Models
+# Keep all App Packages
+-keep class abdullah.bari.asif.model.** { *; }
+-keepclassmembers class abdullah.bari.asif.model.** { *; }
+
 -keep class abdullah.bari.asif.db.** { *; }
+-keepclassmembers class abdullah.bari.asif.db.** { *; }
+
 -keep class abdullah.bari.asif.crawler.** { *; }
+-keepclassmembers class abdullah.bari.asif.crawler.** { *; }
+
+-keep class abdullah.bari.asif.repository.** { *; }
+-keepclassmembers class abdullah.bari.asif.repository.** { *; }
+
+-keep class abdullah.bari.asif.worker.** { *; }
+-keepclassmembers class abdullah.bari.asif.worker.** { *; }
+
+-keep class abdullah.bari.asif.notification.** { *; }
+-keepclassmembers class abdullah.bari.asif.notification.** { *; }
+
+-keep class abdullah.bari.asif.ui.** { *; }
+-keepclassmembers class abdullah.bari.asif.ui.** { *; }
+
+-keep class abdullah.bari.asif.filter.** { *; }
+-keepclassmembers class abdullah.bari.asif.filter.** { *; }
 
 # Don't warn on missing optional/runtime references from third-party libraries (Skrapeit, HtmlUnit, Logback, etc.)
 -dontwarn edu.umd.cs.findbugs.annotations.**
