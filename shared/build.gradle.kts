@@ -42,6 +42,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.sqlite.jdbc)
             }
         }
         val androidMain by getting {
@@ -55,6 +56,7 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.skrapeit)
+                implementation(libs.sqlite.jdbc)
             }
         }
     }
