@@ -17,13 +17,14 @@ object WordFilterEngine {
         val lowerTitle = title.lowercase()
 
         val negativeKeywords = trimmedFilters
-            .filter { it.startsWith("!") || it.startsWith("-") }
-            .map { it.substring(1).trim().lowercase() }
+            .filter { isNegativeFilter(it) }
+            .map { cleanTerm(it).lowercase() }
             .filter { it.isNotEmpty() }
 
         val positiveKeywords = trimmedFilters
-            .filter { !it.startsWith("!") && !it.startsWith("-") }
-            .map { it.lowercase() }
+            .filter { !isNegativeFilter(it) }
+            .map { cleanTerm(it).lowercase() }
+            .filter { it.isNotEmpty() }
 
         // Reject if title contains any negative keyword
         for (neg in negativeKeywords) {
@@ -41,5 +42,25 @@ object WordFilterEngine {
         }
 
         return true
+    }
+
+    /**
+     * Classifies whether a filter string is a negative rule.
+     */
+    fun isNegativeFilter(filter: String): Boolean {
+        val trimmed = filter.trim()
+        return trimmed.startsWith("!") || trimmed.startsWith("-")
+    }
+
+    /**
+     * Extracts the raw term without negative rule prefixes ('!' or '-').
+     */
+    fun cleanTerm(filter: String): String {
+        val trimmed = filter.trim()
+        return if (isNegativeFilter(trimmed)) {
+            trimmed.substring(1).trim()
+        } else {
+            trimmed
+        }
     }
 }

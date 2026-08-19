@@ -53,6 +53,7 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.work.runtime.ktx)
+                implementation(libs.coil.compose)
             }
         }
         val desktopMain by getting {
