@@ -34,6 +34,9 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.skrapeit.get().toString()) {
+                    exclude(group = "io.ktor")
+                }
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
@@ -48,14 +51,13 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.ktor.client.okhttp)
-                implementation(libs.skrapeit)
                 implementation(libs.androidx.work.runtime.ktx)
             }
         }
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation(libs.skrapeit)
+                implementation(libs.ktor.client.okhttp)
                 implementation(libs.sqlite.jdbc)
             }
         }
