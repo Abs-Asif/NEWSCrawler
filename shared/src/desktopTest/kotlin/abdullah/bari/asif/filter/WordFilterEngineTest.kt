@@ -1,6 +1,7 @@
 package abdullah.bari.asif.filter
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -19,6 +20,13 @@ class WordFilterEngineTest {
         assertTrue(WordFilterEngine.matches(title, listOf("CANCER")))
         assertTrue(WordFilterEngine.matches(title, listOf("breakthrough")))
         assertFalse(WordFilterEngine.matches(title, listOf("diabetes")))
+    }
+
+    @Test
+    fun testMultiplePositiveFiltersOrMatching() {
+        val title = "New breakthrough in diabetes research"
+        assertTrue(WordFilterEngine.matches(title, listOf("cancer", "diabetes")))
+        assertFalse(WordFilterEngine.matches(title, listOf("cancer", "cardiology")))
     }
 
     @Test
@@ -46,5 +54,18 @@ class WordFilterEngineTest {
 
         assertFalse(WordFilterEngine.matches(excludedTitle, filtersExclamation))
         assertFalse(WordFilterEngine.matches(excludedTitle, filtersMinus))
+    }
+
+    @Test
+    fun testIsNegativeFilterAndCleanTermHelpers() {
+        assertTrue(WordFilterEngine.isNegativeFilter("!police"))
+        assertTrue(WordFilterEngine.isNegativeFilter("-crime"))
+        assertTrue(WordFilterEngine.isNegativeFilter("  !  politics  "))
+        assertFalse(WordFilterEngine.isNegativeFilter("health"))
+
+        assertEquals("police", WordFilterEngine.cleanTerm("!police"))
+        assertEquals("crime", WordFilterEngine.cleanTerm("-crime"))
+        assertEquals("politics", WordFilterEngine.cleanTerm("  !  politics  "))
+        assertEquals("health", WordFilterEngine.cleanTerm("  health  "))
     }
 }
