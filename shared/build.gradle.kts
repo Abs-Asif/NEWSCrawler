@@ -52,6 +52,7 @@ kotlin {
             dependencies {
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.androidx.work.runtime.ktx)
+                implementation(libs.androidx.activity.compose)
                 implementation(libs.coil.compose)
             }
         }

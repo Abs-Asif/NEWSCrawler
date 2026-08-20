@@ -97,7 +97,8 @@ class NewsCrawlerWorkerTest {
 
     @Test
     fun testPerformSyncFetchesAndDeduplicatesArticles() = runBlocking {
-        val source1 = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON).first()
+        val sources = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
+        val source1 = sources.first()
 
         // Pre-insert an existing article into DB
         val existingArticle = NewsArticle(
@@ -146,7 +147,7 @@ class NewsCrawlerWorkerTest {
             }
         )
 
-        assertEquals(6, syncResult.fetchedTotal) // 3 sources * 2 articles = 6
+        assertEquals(sources.size * 2, syncResult.fetchedTotal) // 7 sources * 2 articles = 14
         // Deduplication: hash_100 is duplicate per source, hash_200 is new per source
         assertTrue(syncResult.newArticlesCount > 0)
 

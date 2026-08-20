@@ -29,7 +29,8 @@ import androidx.compose.ui.unit.dp
 fun NewsArticleCard(
     article: NewsArticle,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showImage: Boolean = true
 ) {
     Card(
         modifier = modifier
@@ -98,8 +99,8 @@ fun NewsArticleCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Optional Thumbnail Image Preview
-            if (!article.imageUrl.isNullOrBlank()) {
+            // Optional Thumbnail Image Preview (respects showImage setting)
+            if (showImage && !article.imageUrl.isNullOrBlank()) {
                 AsyncImage(
                     url = article.imageUrl,
                     contentDescription = article.title,

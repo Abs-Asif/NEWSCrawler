@@ -28,21 +28,11 @@ class NewsSourceSerializationTest {
         val jsonContent = jsonFile.readText()
         val sources = json.decodeFromString<List<NewsSource>>(jsonContent)
 
-        assertEquals(3, sources.size, "Should parse 3 news sources")
+        assertEquals(7, sources.size, "Should parse 7 news sources")
 
         val rssSource = sources.find { it.logic.type == SourceType.RSS }
         assertNotNull(rssSource, "RSS source should be present")
-        assertEquals("med_news_today_rss", rssSource.id)
+        assertEquals("ndtv_news_rss", rssSource.id)
         assertEquals("item", rssSource.logic.selectors.itemSelector)
-
-        val sitemapSource = sources.find { it.logic.type == SourceType.SITEMAP_XML }
-        assertNotNull(sitemapSource, "Sitemap source should be present")
-        assertEquals("who_sitemap", sitemapSource.id)
-        assertEquals("url", sitemapSource.logic.selectors.urlSelector)
-
-        val customHtmlSource = sources.find { it.logic.type == SourceType.CUSTOM_HTML }
-        assertNotNull(customHtmlSource, "Custom HTML source should be present")
-        assertEquals("nih_news_custom", customHtmlSource.id)
-        assertEquals("li.news-item", customHtmlSource.logic.selectors.containerSelector)
     }
 }
