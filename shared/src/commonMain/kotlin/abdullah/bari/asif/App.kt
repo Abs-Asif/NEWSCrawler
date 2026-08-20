@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -63,46 +64,62 @@ fun App(
     if (database != null) {
         // 1. Observe Cached Articles
         LaunchedEffect(database) {
-            database.articleDao.getAllArticles().collect { dbArticles ->
-                if (dbArticles.isNotEmpty()) {
-                    articleList = dbArticles
+            try {
+                database.articleDao.getAllArticles().collect { dbArticles ->
+                    if (dbArticles.isNotEmpty()) {
+                        articleList = dbArticles
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
         // 2. Load & Observe Installed Sources
         LaunchedEffect(database) {
-            val enabled = repository.getEnabledSources(database)
-            val allParsed = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
-            val installedIds = enabled.map { it.id }.toSet()
-            sourceList = allParsed.map { src ->
-                src.copy(isInstalled = src.id in installedIds)
+            try {
+                val enabled = repository.getEnabledSources(database)
+                val allParsed = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
+                val installedIds = enabled.map { it.id }.toSet()
+                sourceList = allParsed.map { src ->
+                    src.copy(isInstalled = src.id in installedIds)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
         // 3. Load Saved Settings (Persisted Settings Layer)
         LaunchedEffect(database) {
-            val savedIntervalName = database.settingsDao.getSetting("fetch_interval", FetchInterval.HOUR_1.name)
-            selectedInterval = try {
-                FetchInterval.valueOf(savedIntervalName)
+            try {
+                val savedIntervalName = database.settingsDao.getSetting("fetch_interval", FetchInterval.HOUR_1.name)
+                selectedInterval = try {
+                    FetchInterval.valueOf(savedIntervalName)
+                } catch (e: Exception) {
+                    FetchInterval.HOUR_1
+                }
+
+                val savedCustomMins = database.settingsDao.getSetting("custom_minutes", "10")
+                customMinutesValue = savedCustomMins.toLongOrNull() ?: 10L
+
+                syncWifiOnly = database.settingsDao.getSetting("sync_wifi_only", "false").toBoolean()
+                syncWhenCharging = database.settingsDao.getSetting("sync_when_charging", "false").toBoolean()
+                showImages = database.settingsDao.getSetting("show_images", "true").toBoolean()
             } catch (e: Exception) {
-                FetchInterval.HOUR_1
+                e.printStackTrace()
             }
-
-            val savedCustomMins = database.settingsDao.getSetting("custom_minutes", "10")
-            customMinutesValue = savedCustomMins.toLongOrNull() ?: 10L
-
-            syncWifiOnly = database.settingsDao.getSetting("sync_wifi_only", "false").toBoolean()
-            syncWhenCharging = database.settingsDao.getSetting("sync_when_charging", "false").toBoolean()
-            showImages = database.settingsDao.getSetting("show_images", "true").toBoolean()
         }
 
         // 4. Initial Launch Fetcher Execution
         LaunchedEffect(database) {
-            syncArticlesFromNetwork(database, fetcher, repository) { freshArticles ->
-                if (freshArticles.isNotEmpty()) {
-                    articleList = freshArticles
+            try {
+                syncArticlesFromNetwork(database, fetcher, repository) { freshArticles ->
+                    if (freshArticles.isNotEmpty()) {
+                        articleList = freshArticles
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -291,14 +308,7 @@ private suspend fun syncArticlesFromNetwork(
                 database.sourceDao.updateLastSynced(source.id, now)
             }
 
-            val allDbArticles = database.articleDao.getAllArticles().let { flow ->
-                var list = emptyList<NewsArticle>()
-                val job = launch {
-                    flow.collect { list = it }
-                }
-                job.cancel()
-                list
-            }
+            val allDbArticles = database.articleDao.getAllArticles().first()
             if (allDbArticles.isNotEmpty()) {
                 withContext(Dispatchers.Main) {
                     onArticlesUpdated(allDbArticles)

@@ -43,12 +43,16 @@ fun NewsArticleCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.5.dp,
+            pressedElevation = 4.dp
+        )
     ) {
         if (hasValidImage) {
             // Layout with Image
@@ -64,8 +68,9 @@ fun NewsArticleCard(
                     contentDescription = article.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                        .height(190.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                     contentScale = ContentScale.Crop
                 )
 
@@ -75,6 +80,7 @@ fun NewsArticleCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = MaterialTheme.typography.titleMedium.lineHeight,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
