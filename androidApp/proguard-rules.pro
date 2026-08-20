@@ -25,7 +25,9 @@
     ***[] values();
 }
 
-# Keep WorkManager Workers
+# Keep WorkManager Workers & Initializers
+-keep class androidx.work.** { *; }
+-keepclassmembers class androidx.work.** { *; }
 -keep class * extends androidx.work.ListenableWorker {
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
@@ -43,6 +45,8 @@
 # Keep Ktor & OkHttp
 -keep class io.ktor.** { *; }
 -keepclassmembers class io.ktor.** { *; }
+-keep class io.ktor.client.engine.** { *; }
+-keepclassmembers class io.ktor.client.engine.** { *; }
 -keep class okhttp3.** { *; }
 -keepclassmembers class okhttp3.** { *; }
 
