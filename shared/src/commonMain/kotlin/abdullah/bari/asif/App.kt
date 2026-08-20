@@ -7,7 +7,11 @@ import abdullah.bari.asif.ui.FetchInterval
 import abdullah.bari.asif.ui.HomeScreen
 import abdullah.bari.asif.ui.SettingsScreen
 import abdullah.bari.asif.ui.StoreScreen
+import abdullah.bari.asif.ui.utils.BackHandler
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,23 +25,50 @@ fun App(
     articles: List<NewsArticle> = defaultSampleArticles,
     sources: List<NewsSource> = defaultSampleSources,
     onToggleInstallSource: ((NewsSource, Boolean) -> Unit)? = null,
-    onClearCache: (() -> Unit)? = null
+    onClearCache: (() -> Unit)? = null,
+    onExitApp: (() -> Unit)? = null
 ) {
-    var currentScreen by remember { mutableStateOf(Screen.HOME) }
+    var screenStack by remember { mutableStateOf(listOf(Screen.HOME)) }
+    val currentScreen = screenStack.last()
+
     var sourceList by remember(sources) { mutableStateOf(sources) }
     var articleList by remember(articles) { mutableStateOf(articles) }
 
     var selectedInterval by remember { mutableStateOf(FetchInterval.HOUR_1) }
+    var customMinutesValue by remember { mutableStateOf<Long?>(10L) }
     var syncWifiOnly by remember { mutableStateOf(false) }
     var syncWhenCharging by remember { mutableStateOf(false) }
+    var showImages by remember { mutableStateOf(true) }
+
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    fun navigateTo(screen: Screen) {
+        if (currentScreen != screen) {
+            screenStack = screenStack + screen
+        }
+    }
+
+    fun navigateBack() {
+        if (screenStack.size > 1) {
+            screenStack = screenStack.dropLast(1)
+        } else {
+            showExitDialog = true
+        }
+    }
+
+    // Intercept system back gestures
+    BackHandler(enabled = true) {
+        navigateBack()
+    }
 
     MaterialTheme {
         when (currentScreen) {
             Screen.HOME -> {
                 HomeScreen(
                     articles = articleList,
-                    onStoreClick = { currentScreen = Screen.STORE },
-                    onSettingsClick = { currentScreen = Screen.SETTINGS }
+                    showImages = showImages,
+                    onStoreClick = { navigateTo(Screen.STORE) },
+                    onSettingsClick = { navigateTo(Screen.SETTINGS) }
                 )
             }
             Screen.STORE -> {
@@ -49,7 +80,7 @@ fun App(
                         }
                         onToggleInstallSource?.invoke(source, install)
                     },
-                    onBackClick = { currentScreen = Screen.HOME }
+                    onBackClick = { navigateBack() }
                 )
             }
             Screen.SETTINGS -> {
@@ -57,16 +88,46 @@ fun App(
                     currentInterval = selectedInterval,
                     syncWifiOnly = syncWifiOnly,
                     syncWhenCharging = syncWhenCharging,
+                    showImages = showImages,
+                    customMinutes = customMinutesValue,
                     onIntervalChange = { selectedInterval = it },
+                    onCustomMinutesChange = { customMinutesValue = it },
                     onWifiOnlyChange = { syncWifiOnly = it },
                     onSyncWhenChargingChange = { syncWhenCharging = it },
+                    onShowImagesChange = { showImages = it },
                     onClearCacheClick = {
                         articleList = emptyList()
                         onClearCache?.invoke()
                     },
-                    onBackClick = { currentScreen = Screen.HOME }
+                    onBackClick = { navigateBack() }
                 )
             }
+        }
+
+        // Exit App Confirmation Dialog
+        if (showExitDialog) {
+            AlertDialog(
+                onDismissRequest = { showExitDialog = false },
+                title = { Text("Exit App") },
+                text = { Text("Are you sure you want to exit NEWScrawler?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showExitDialog = false
+                            onExitApp?.invoke()
+                        }
+                    ) {
+                        Text("Exit", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showExitDialog = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }
@@ -78,35 +139,35 @@ private val defaultSampleSources = repository.parseSourcesJson(NewsSourceReposit
 private val defaultSampleArticles = listOf(
     NewsArticle(
         id = "sample_1",
-        sourceId = "med_news_today_rss",
-        sourceName = "Medical News Today",
-        sourceLogoUrl = "https://www.medicalnewstoday.com/favicon.ico",
-        title = "New breakthrough in cancer research published in medical journal",
-        articleUrl = "https://www.medicalnewstoday.com/articles/breakthrough-cancer-research",
-        imageUrl = "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d",
-        publishedAt = "2025-02-18T12:00:00Z",
+        sourceId = "ndtv_news_rss",
+        sourceName = "NDTV News",
+        sourceLogoUrl = "https://www.ndtv.com/favicon.ico",
+        title = "US Body Seeks Sanctions On RSS Ahead Of Mohan Bhagwat's New York Visit",
+        articleUrl = "https://www.ndtv.com/india-news/us-commission-on-international-religious-freedom-uscirf-seeks-sanctions-on-rss-11934850",
+        imageUrl = "https://c.ndtvimg.com/2026-08/u9v3fvbc_mohan-bhagwat_625x300_15_August_26.png",
+        publishedAt = "2026-08-20T14:33:03+05:30",
         fetchedAt = 1739880000000L
     ),
     NewsArticle(
         id = "sample_2",
-        sourceId = "who_sitemap",
-        sourceName = "World Health Organization",
-        sourceLogoUrl = "https://www.who.int/favicon.ico",
-        title = "Global health update on seasonal flu and prevention strategies",
-        articleUrl = "https://www.who.int/news/item/seasonal-flu-prevention",
-        imageUrl = "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982",
-        publishedAt = "2025-02-18T10:30:00Z",
+        sourceId = "toi_news_rss",
+        sourceName = "Times of India",
+        sourceLogoUrl = "https://timesofindia.indiatimes.com/favicon.ico",
+        title = "I-T uncovers Rs 1.29 lakh cr overseas remittances trail; money sent to China, UAE & more",
+        articleUrl = "https://timesofindia.indiatimes.com/business/india-business/overseas-remittance-in-focus-i-t-uncovers-rs-1-29-lakh-crore-trail/articleshow/133365723.cms",
+        imageUrl = "https://static.toiimg.com/photo/msid-133366334,imgsize-614155.cms",
+        publishedAt = "2026-08-20T11:32:12+05:30",
         fetchedAt = 1739874600000L
     ),
     NewsArticle(
         id = "sample_3",
-        sourceId = "nih_news_custom",
-        sourceName = "NIH Research Matters",
-        sourceLogoUrl = "https://www.nih.gov/favicon.ico",
-        title = "5 people injured in highway traffic incident; emergency teams respond",
-        articleUrl = "https://www.nih.gov/news-events/highway-incident-report",
-        imageUrl = null,
-        publishedAt = "2025-02-18T08:15:00Z",
+        sourceId = "the_hindu_rss",
+        sourceName = "The Hindu",
+        sourceLogoUrl = "https://www.thehindu.com/favicon.ico",
+        title = "UNSC membership must not be used to 'legitimise' terrorists: India",
+        articleUrl = "https://www.thehindu.com/news/national/unsc-membership-must-not-be-used-to-legitimise-terrorists-india/article71367818.ece",
+        imageUrl = "https://th-i.thgim.com/public/incoming/u8vs81/article71367825.ece/alternates/LANDSCAPE_1200/PTI04_29_2025_000017B.jpg",
+        publishedAt = "2026-08-20T10:30:51+05:30",
         fetchedAt = 1739866500000L
     )
 )

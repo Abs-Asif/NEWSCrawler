@@ -48,12 +48,12 @@ class NewsSourceRepository(
         val DEFAULT_SOURCES_JSON = """
             [
               {
-                "id": "med_news_today_rss",
-                "name": "Medical News Today",
-                "baseUrl": "https://www.medicalnewstoday.com",
-                "imageUrl": "https://www.medicalnewstoday.com/favicon.ico",
+                "id": "ndtv_news_rss",
+                "name": "NDTV News",
+                "baseUrl": "https://www.ndtv.com",
+                "imageUrl": "https://www.ndtv.com/favicon.ico",
                 "updatedAt": "2025.02.18.12.00",
-                "fetchUrl": "https://www.medicalnewstoday.com/rss/featurednews.xml",
+                "fetchUrl": "https://feeds.feedburner.com/ndtvnews-top-stories",
                 "logic": {
                   "type": "RSS",
                   "selectors": {
@@ -66,37 +66,110 @@ class NewsSourceRepository(
                 }
               },
               {
-                "id": "who_sitemap",
-                "name": "World Health Organization News",
-                "baseUrl": "https://www.who.int",
-                "imageUrl": "https://www.who.int/favicon.ico",
+                "id": "toi_news_rss",
+                "name": "Times of India",
+                "baseUrl": "https://timesofindia.indiatimes.com",
+                "imageUrl": "https://timesofindia.indiatimes.com/favicon.ico",
                 "updatedAt": "2025.02.18.12.00",
-                "fetchUrl": "https://www.who.int/sitemap-{year}-{month}.xml",
+                "fetchUrl": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
                 "logic": {
-                  "type": "SITEMAP_XML",
-                  "dateFormatPattern": "yyyy-MM",
+                  "type": "RSS",
                   "selectors": {
-                    "urlSelector": "url",
-                    "locSelector": "loc",
-                    "lastmodSelector": "lastmod"
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "enclosure",
+                    "dateSelector": "pubDate"
                   }
                 }
               },
               {
-                "id": "nih_news_custom",
-                "name": "NIH Research Matters",
-                "baseUrl": "https://www.nih.gov",
-                "imageUrl": "https://www.nih.gov/favicon.ico",
+                "id": "india_today_rss",
+                "name": "India Today",
+                "baseUrl": "https://www.indiatoday.in",
+                "imageUrl": "https://www.indiatoday.in/favicon.ico",
                 "updatedAt": "2025.02.18.12.00",
-                "fetchUrl": "https://www.nih.gov/news-events/news-releases",
+                "fetchUrl": "https://www.indiatoday.in/rss/1206584",
                 "logic": {
-                  "type": "CUSTOM_HTML",
+                  "type": "RSS",
                   "selectors": {
-                    "containerSelector": "li.news-item",
-                    "titleSelector": "h3.title a",
-                    "linkSelector": "h3.title a[href]",
-                    "imageSelector": "img.thumbnail[src]",
-                    "dateSelector": "span.date"
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "media:content",
+                    "dateSelector": "pubDate"
+                  }
+                }
+              },
+              {
+                "id": "the_hindu_rss",
+                "name": "The Hindu",
+                "baseUrl": "https://www.thehindu.com",
+                "imageUrl": "https://www.thehindu.com/favicon.ico",
+                "updatedAt": "2025.02.18.12.00",
+                "fetchUrl": "https://www.thehindu.com/news/national/feeder/default.rss",
+                "logic": {
+                  "type": "RSS",
+                  "selectors": {
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "media:content",
+                    "dateSelector": "pubDate"
+                  }
+                }
+              },
+              {
+                "id": "economic_times_rss",
+                "name": "Economic Times",
+                "baseUrl": "https://economictimes.indiatimes.com",
+                "imageUrl": "https://economictimes.indiatimes.com/favicon.ico",
+                "updatedAt": "2025.02.18.12.00",
+                "fetchUrl": "https://economictimes.indiatimes.com/rssfeedstopstories.cms",
+                "logic": {
+                  "type": "RSS",
+                  "selectors": {
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "enclosure",
+                    "dateSelector": "pubDate"
+                  }
+                }
+              },
+              {
+                "id": "zee_news_rss",
+                "name": "Zee News",
+                "baseUrl": "https://zeenews.india.com",
+                "imageUrl": "https://zeenews.india.com/favicon.ico",
+                "updatedAt": "2025.02.18.12.00",
+                "fetchUrl": "https://zeenews.india.com/rss/india-national-news.xml",
+                "logic": {
+                  "type": "RSS",
+                  "selectors": {
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "media:content",
+                    "dateSelector": "pubDate"
+                  }
+                }
+              },
+              {
+                "id": "indian_express_rss",
+                "name": "Indian Express",
+                "baseUrl": "https://indianexpress.com",
+                "imageUrl": "https://indianexpress.com/favicon.ico",
+                "updatedAt": "2025.02.18.12.00",
+                "fetchUrl": "https://indianexpress.com/feed/",
+                "logic": {
+                  "type": "RSS",
+                  "selectors": {
+                    "itemSelector": "item",
+                    "titleSelector": "title",
+                    "linkSelector": "link",
+                    "imageSelector": "media:content",
+                    "dateSelector": "pubDate"
                   }
                 }
               }
