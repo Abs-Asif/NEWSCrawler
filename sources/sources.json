@@ -1,127 +1,97 @@
 [
   {
-    "id": "ndtv_news_rss",
-    "name": "NDTV News",
-    "baseUrl": "https://www.ndtv.com",
-    "imageUrl": "https://www.ndtv.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://feeds.feedburner.com/ndtvnews-top-stories",
-    "logic": {
-      "type": "RSS",
-      "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
-      }
-    }
-  },
-  {
-    "id": "toi_news_rss",
-    "name": "Times of India",
-    "baseUrl": "https://timesofindia.indiatimes.com",
-    "imageUrl": "https://timesofindia.indiatimes.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-    "logic": {
-      "type": "RSS",
-      "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "enclosure",
-        "dateSelector": "pubDate"
-      }
-    }
-  },
-  {
-    "id": "india_today_rss",
-    "name": "India Today",
-    "baseUrl": "https://www.indiatoday.in",
-    "imageUrl": "https://www.indiatoday.in/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://www.indiatoday.in/rss/1206584",
-    "logic": {
-      "type": "RSS",
-      "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
-      }
-    }
-  },
-  {
-    "id": "the_hindu_rss",
+    "id": "the_hindu_sitemap",
     "name": "The Hindu",
     "baseUrl": "https://www.thehindu.com",
     "imageUrl": "https://www.thehindu.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://www.thehindu.com/news/national/feeder/default.rss",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.thehindu.com/sitemap/googlenews/all/all.xml",
     "logic": {
-      "type": "RSS",
+      "type": "SITEMAP_XML",
       "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
       }
     }
   },
   {
-    "id": "economic_times_rss",
-    "name": "Economic Times",
-    "baseUrl": "https://economictimes.indiatimes.com",
-    "imageUrl": "https://economictimes.indiatimes.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://economictimes.indiatimes.com/rssfeedstopstories.cms",
+    "id": "greater_kashmir_sitemap",
+    "name": "Greater Kashmir",
+    "baseUrl": "https://www.greaterkashmir.com",
+    "imageUrl": "https://www.greaterkashmir.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.greaterkashmir.com/sitemap.xml",
     "logic": {
-      "type": "RSS",
+      "type": "SITEMAP_XML",
       "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "enclosure",
-        "dateSelector": "pubDate"
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
       }
     }
   },
   {
-    "id": "zee_news_rss",
-    "name": "Zee News",
-    "baseUrl": "https://zeenews.india.com",
-    "imageUrl": "https://zeenews.india.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://zeenews.india.com/rss/india-national-news.xml",
+    "id": "siasat_daily_sitemap",
+    "name": "The Siasat Daily",
+    "baseUrl": "https://www.siasat.com",
+    "imageUrl": "https://www.siasat.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.siasat.com/post-sitemap.xml",
     "logic": {
-      "type": "RSS",
+      "type": "SITEMAP_XML",
       "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
       }
     }
   },
   {
-    "id": "indian_express_rss",
-    "name": "Indian Express",
-    "baseUrl": "https://indianexpress.com",
-    "imageUrl": "https://indianexpress.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://indianexpress.com/feed/",
+    "id": "dt_next_sitemap",
+    "name": "DT Next",
+    "baseUrl": "https://www.dtnext.in",
+    "imageUrl": "https://www.dtnext.in/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.dtnext.in/sitemap.xml",
     "logic": {
-      "type": "RSS",
+      "type": "SITEMAP_XML",
       "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "telangana_today_sitemap",
+    "name": "Telangana Today",
+    "baseUrl": "https://telanganatoday.com",
+    "imageUrl": "https://telanganatoday.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://telanganatoday.com/sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "business_standard_sitemap",
+    "name": "Business Standard",
+    "baseUrl": "https://www.businessstandard.com",
+    "imageUrl": "https://www.businessstandard.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.businessstandard.com/sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
       }
     }
   }

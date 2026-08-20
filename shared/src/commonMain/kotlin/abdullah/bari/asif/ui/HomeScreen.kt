@@ -43,7 +43,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +64,7 @@ data class FilterItem(
     val term: String
 )
 
-private val NewsLogoIcon: ImageVector
+val NewsLogoIcon: ImageVector
     get() {
         if (_newsLogoIcon != null) return _newsLogoIcon!!
         _newsLogoIcon = ImageVector.Builder(
