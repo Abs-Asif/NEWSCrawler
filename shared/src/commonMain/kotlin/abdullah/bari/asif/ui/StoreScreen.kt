@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -97,7 +97,20 @@ fun StoreScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Extension Store", fontWeight = FontWeight.Bold) },
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = NewsLogoIcon,
+                            contentDescription = "App Logo",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(26.dp)
+                        )
+                        Text("Extension Store", fontWeight = FontWeight.Bold)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -120,29 +133,43 @@ fun StoreScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // 1. Circular Search Bar matching HomeScreen
+                // 1. Refined Search Bar with Short Placeholder & Proper Icon Margins
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search sources by name or URL...") },
+                    placeholder = {
+                        Text(
+                            "Search extensions...",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
                     singleLine = true,
                     shape = RoundedCornerShape(50.dp),
                     leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search"
-                        )
+                        Box(modifier = Modifier.padding(start = 12.dp, end = 4.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear"
-                                )
+                            Box(modifier = Modifier.padding(end = 6.dp)) {
+                                IconButton(
+                                    onClick = { searchQuery = "" },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Clear search",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     },
@@ -152,7 +179,7 @@ fun StoreScreen(
                     )
                 )
 
-                // 2. Extension Grid / Source Tiles List
+                // 2. Extension Grid: 2 Boxes per Row
                 if (filteredSources.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -162,9 +189,9 @@ fun StoreScreen(
                     ) {
                         Text(
                             text = if (sources.isEmpty()) {
-                                "No sources available in Store."
+                                "No extensions available in Store."
                             } else {
-                                "No sources found matching '$searchQuery'."
+                                "No extensions found for '$searchQuery'."
                             },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.outline,
@@ -172,13 +199,15 @@ fun StoreScreen(
                         )
                     }
                 } else {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
                         modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(filteredSources, key = { it.id }) { source ->
-                            SourceTile(
+                            SourceBoxCard(
                                 source = source,
                                 onToggleInstall = { install -> onToggleInstall(source, install) }
                             )
@@ -196,7 +225,7 @@ fun StoreScreen(
 }
 
 @Composable
-fun SourceTile(
+fun SourceBoxCard(
     source: NewsSource,
     onToggleInstall: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -204,71 +233,85 @@ fun SourceTile(
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Source Logo
+            // Header Row: Badge at Top Right
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                StrategyBadge(type = source.logic.type)
+            }
+
+            // Logo
             AsyncImage(
                 url = source.imageUrl,
                 contentDescription = "${source.name} logo",
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = source.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    StrategyBadge(type = source.logic.type)
-                }
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+            // Title & URL
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = source.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
 
                 Text(
-                    text = source.baseUrl,
+                    text = source.baseUrl.removePrefix("https://").removePrefix("http://"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Add / Remove Button
             if (source.isInstalled) {
                 OutlinedButton(
                     onClick = { onToggleInstall(false) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
-                    )
+                    ),
+                    contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
                 ) {
-                    Text("Remove")
+                    Text("Remove", style = MaterialTheme.typography.labelMedium)
                 }
             } else {
                 Button(
-                    onClick = { onToggleInstall(true) }
+                    onClick = { onToggleInstall(true) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
                 ) {
-                    Text("Add")
+                    Text("Add", style = MaterialTheme.typography.labelMedium)
                 }
             }
         }

@@ -5,9 +5,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class AppDatabase(val driver: DatabaseDriver) {
     private val articleChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
     private val sourceChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
+    private val settingChanges = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
 
     val articleDao: ArticleDao = ArticleDaoImpl(driver, articleChanges)
     val sourceDao: SourceDao = SourceDaoImpl(driver, sourceChanges)
+    val settingsDao: SettingsDao = SettingsDaoImpl(driver, settingChanges)
 
     init {
         createTables()
@@ -36,6 +38,15 @@ class AppDatabase(val driver: DatabaseDriver) {
                 source_id TEXT PRIMARY KEY,
                 is_enabled INTEGER NOT NULL,
                 last_synced_at INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+
+        driver.execute(
+            """
+            CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
             )
             """.trimIndent()
         )
