@@ -1,5 +1,5 @@
-# Keep attributes for reflection and serialization
--keepattributes *Annotation*,ElementValuePairs,Signature,InnerClasses,EnclosingMethod
+# Keep attributes for reflection, serialization, and stack traces
+-keepattributes *Annotation*,ElementValuePairs,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
 
 # Keep all App Packages
 -keep class abdullah.bari.asif.** { *; }
