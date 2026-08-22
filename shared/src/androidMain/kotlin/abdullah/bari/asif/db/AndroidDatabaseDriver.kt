@@ -21,13 +21,13 @@ class AndroidDatabaseDriver(
         if (args.isEmpty()) {
             db.execSQL(sql)
         } else {
-            val bindArgs = args.map { it?.toString() }.toTypedArray()
+            val bindArgs = args.toTypedArray()
             db.execSQL(sql, bindArgs)
         }
     }
 
     override fun <T> query(sql: String, args: List<Any?>, mapper: (DbRow) -> T): List<T> {
-        val bindArgs = if (args.isEmpty()) null else args.map { it?.toString() ?: "" }.toTypedArray()
+        val bindArgs = if (args.isEmpty()) null else args.map { it?.toString() }.toTypedArray()
         val cursor: Cursor = db.rawQuery(sql, bindArgs)
         val result = mutableListOf<T>()
         cursor.use { c ->
@@ -40,7 +40,11 @@ class AndroidDatabaseDriver(
     }
 
     override fun close() {
-        helper.close()
+        try {
+            helper.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
