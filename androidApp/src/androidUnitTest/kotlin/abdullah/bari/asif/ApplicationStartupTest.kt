@@ -2,15 +2,12 @@ package abdullah.bari.asif
 
 import abdullah.bari.asif.crawler.UniversalFetcher
 import abdullah.bari.asif.db.AppDatabase
-import abdullah.bari.asif.model.NewsSource
 import abdullah.bari.asif.repository.NewsSourceRepository
 import abdullah.bari.asif.worker.NewsCrawlerWorker
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -49,5 +46,16 @@ class ApplicationStartupTest {
 
         // Verify crawler worker sync executes safely without throwing exceptions
         assertTrue(syncResult.syncedSourceCount >= 0)
+    }
+
+    @Test
+    fun testApplicationAndActivityInitializationSafety() {
+        // Verify NewsApplication instance can be created safely
+        val app = NewsApplication()
+        assertNotNull(app)
+
+        // Verify default sources parse cleanly without throwing exceptions on app start
+        val sources = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
+        assertTrue(sources.isNotEmpty())
     }
 }

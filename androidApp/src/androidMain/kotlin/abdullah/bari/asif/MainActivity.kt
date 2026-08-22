@@ -11,7 +11,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = AppDatabase(AndroidDatabaseDriver(applicationContext))
+        val db = try {
+            AppDatabase(AndroidDatabaseDriver(applicationContext))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
         database = db
 
         setContent {
@@ -24,6 +29,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        database?.close()
+        try {
+            database?.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
