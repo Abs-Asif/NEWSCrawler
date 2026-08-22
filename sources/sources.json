@@ -1,32 +1,13 @@
 [
   {
-    "id": "med_news_today_rss",
-    "name": "Medical News Today",
-    "baseUrl": "https://www.medicalnewstoday.com",
-    "imageUrl": "https://www.medicalnewstoday.com/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://www.medicalnewstoday.com/rss/featurednews.xml",
-    "logic": {
-      "type": "RSS",
-      "selectors": {
-        "itemSelector": "item",
-        "titleSelector": "title",
-        "linkSelector": "link",
-        "imageSelector": "media:content",
-        "dateSelector": "pubDate"
-      }
-    }
-  },
-  {
-    "id": "who_sitemap",
-    "name": "World Health Organization News",
-    "baseUrl": "https://www.who.int",
-    "imageUrl": "https://www.who.int/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://www.who.int/sitemap-{year}-{month}.xml",
+    "id": "the_hindu_sitemap",
+    "name": "The Hindu",
+    "baseUrl": "https://www.thehindu.com",
+    "imageUrl": "https://www.thehindu.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.thehindu.com/sitemap/googlenews/all/all.xml",
     "logic": {
       "type": "SITEMAP_XML",
-      "dateFormatPattern": "yyyy-MM",
       "selectors": {
         "urlSelector": "url",
         "locSelector": "loc",
@@ -35,20 +16,82 @@
     }
   },
   {
-    "id": "nih_news_custom",
-    "name": "NIH Research Matters",
-    "baseUrl": "https://www.nih.gov",
-    "imageUrl": "https://www.nih.gov/favicon.ico",
-    "updatedAt": "2025.02.18.12.00",
-    "fetchUrl": "https://www.nih.gov/news-events/news-releases",
+    "id": "greater_kashmir_sitemap",
+    "name": "Greater Kashmir",
+    "baseUrl": "https://www.greaterkashmir.com",
+    "imageUrl": "https://www.greaterkashmir.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.greaterkashmir.com/sitemap.xml",
     "logic": {
-      "type": "CUSTOM_HTML",
+      "type": "SITEMAP_XML",
       "selectors": {
-        "containerSelector": "li.news-item",
-        "titleSelector": "h3.title a",
-        "linkSelector": "h3.title a[href]",
-        "imageSelector": "img.thumbnail[src]",
-        "dateSelector": "span.date"
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "siasat_daily_sitemap",
+    "name": "The Siasat Daily",
+    "baseUrl": "https://www.siasat.com",
+    "imageUrl": "https://www.siasat.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.siasat.com/post-sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "dt_next_sitemap",
+    "name": "DT Next",
+    "baseUrl": "https://www.dtnext.in",
+    "imageUrl": "https://www.dtnext.in/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.dtnext.in/sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "telangana_today_sitemap",
+    "name": "Telangana Today",
+    "baseUrl": "https://telanganatoday.com",
+    "imageUrl": "https://telanganatoday.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://telanganatoday.com/sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
+      }
+    }
+  },
+  {
+    "id": "business_standard_sitemap",
+    "name": "Business Standard",
+    "baseUrl": "https://www.businessstandard.com",
+    "imageUrl": "https://www.businessstandard.com/favicon.ico",
+    "updatedAt": "2025.02.20.12.00",
+    "fetchUrl": "https://www.businessstandard.com/sitemap.xml",
+    "logic": {
+      "type": "SITEMAP_XML",
+      "selectors": {
+        "urlSelector": "url",
+        "locSelector": "loc",
+        "lastmodSelector": "lastmod"
       }
     }
   }

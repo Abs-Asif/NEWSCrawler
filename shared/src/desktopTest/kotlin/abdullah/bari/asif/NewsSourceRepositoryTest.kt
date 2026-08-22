@@ -30,30 +30,30 @@ class NewsSourceRepositoryTest {
     @Test
     fun testParseSourcesJson() {
         val sources = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
-        assertEquals(3, sources.size)
-        assertTrue(sources.any { it.id == "med_news_today_rss" })
-        assertTrue(sources.any { it.id == "who_sitemap" })
-        assertTrue(sources.any { it.id == "nih_news_custom" })
+        assertEquals(6, sources.size)
+        assertTrue(sources.any { it.id == "the_hindu_sitemap" })
+        assertTrue(sources.any { it.id == "greater_kashmir_sitemap" })
+        assertTrue(sources.any { it.id == "siasat_daily_sitemap" })
     }
 
     @Test
     fun testGetEnabledSourcesWhenDbEmptyAutoInitializes() = runBlocking {
         val enabledSources = repository.getEnabledSources(database)
-        assertEquals(3, enabledSources.size)
+        assertEquals(6, enabledSources.size)
         assertTrue(enabledSources.all { it.isInstalled })
     }
 
     @Test
     fun testGetEnabledSourcesRespectsDisabledSources() = runBlocking {
         // Initialize DB with all installed, but disable one
-        database.sourceDao.setSourceInstalled("med_news_today_rss", isEnabled = true)
-        database.sourceDao.setSourceInstalled("who_sitemap", isEnabled = false)
-        database.sourceDao.setSourceInstalled("nih_news_custom", isEnabled = true)
+        database.sourceDao.setSourceInstalled("the_hindu_sitemap", isEnabled = true)
+        database.sourceDao.setSourceInstalled("greater_kashmir_sitemap", isEnabled = false)
+        database.sourceDao.setSourceInstalled("siasat_daily_sitemap", isEnabled = true)
 
         val enabledSources = repository.getEnabledSources(database)
         assertEquals(2, enabledSources.size)
-        assertFalse(enabledSources.any { it.id == "who_sitemap" })
-        assertTrue(enabledSources.any { it.id == "med_news_today_rss" })
-        assertTrue(enabledSources.any { it.id == "nih_news_custom" })
+        assertFalse(enabledSources.any { it.id == "greater_kashmir_sitemap" })
+        assertTrue(enabledSources.any { it.id == "the_hindu_sitemap" })
+        assertTrue(enabledSources.any { it.id == "siasat_daily_sitemap" })
     }
 }

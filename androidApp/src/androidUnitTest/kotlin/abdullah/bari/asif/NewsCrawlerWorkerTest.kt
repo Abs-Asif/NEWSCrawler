@@ -2,7 +2,8 @@ package abdullah.bari.asif
 
 import abdullah.bari.asif.crawler.NewsFetcher
 import abdullah.bari.asif.db.AppDatabase
-import abdullah.bari.asif.db.JdbcDatabaseDriver
+import abdullah.bari.asif.db.DatabaseDriver
+import abdullah.bari.asif.db.DbRow
 import abdullah.bari.asif.model.NewsArticle
 import abdullah.bari.asif.model.NewsSource
 import abdullah.bari.asif.repository.NewsSourceRepository
@@ -12,8 +13,71 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.sql.Connection
+import java.sql.DriverManager
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+class TestJdbcDatabaseDriver(dbPath: String = ":memory:") : DatabaseDriver {
+    private val connection: Connection by lazy {
+        DriverManager.getConnection("jdbc:sqlite:$dbPath")
+    }
+
+    override fun execute(sql: String, args: List<Any?>) {
+        connection.prepareStatement(sql).use { stmt ->
+            bindArgs(stmt, args)
+            stmt.executeUpdate()
+        }
+    }
+
+    override fun <T> query(sql: String, args: List<Any?>, mapper: (DbRow) -> T): List<T> {
+        val result = mutableListOf<T>()
+        connection.prepareStatement(sql).use { stmt ->
+            bindArgs(stmt, args)
+            stmt.executeQuery().use { rs ->
+                val row = TestJdbcDbRow(rs)
+                while (rs.next()) {
+                    result.add(mapper(row))
+                }
+            }
+        }
+        return result
+    }
+
+    private fun bindArgs(stmt: PreparedStatement, args: List<Any?>) {
+        args.forEachIndexed { index, arg ->
+            val paramIndex = index + 1
+            when (arg) {
+                null -> stmt.setNull(paramIndex, java.sql.Types.NULL)
+                is String -> stmt.setString(paramIndex, arg)
+                is Long -> stmt.setLong(paramIndex, arg)
+                is Int -> stmt.setInt(paramIndex, arg)
+                is Double -> stmt.setDouble(paramIndex, arg)
+                is Boolean -> stmt.setInt(paramIndex, if (arg) 1 else 0)
+                else -> stmt.setString(paramIndex, arg.toString())
+            }
+        }
+    }
+
+    override fun close() {
+        if (!connection.isClosed) {
+            connection.close()
+        }
+    }
+}
+
+private class TestJdbcDbRow(private val rs: ResultSet) : DbRow {
+    override fun getString(columnName: String): String = rs.getString(columnName) ?: ""
+    override fun getStringOrNull(columnName: String): String? = rs.getString(columnName)
+    override fun getLong(columnName: String): Long = rs.getLong(columnName)
+    override fun getLongOrNull(columnName: String): Long? {
+        val value = rs.getLong(columnName)
+        return if (rs.wasNull()) null else value
+    }
+    override fun getInt(columnName: String): Int = rs.getInt(columnName)
+}
 
 class NewsCrawlerWorkerTest {
 
@@ -22,7 +86,7 @@ class NewsCrawlerWorkerTest {
 
     @Before
     fun setup() {
-        val driver = JdbcDatabaseDriver(":memory:")
+        val driver = TestJdbcDatabaseDriver(":memory:")
         database = AppDatabase(driver)
     }
 
@@ -33,7 +97,8 @@ class NewsCrawlerWorkerTest {
 
     @Test
     fun testPerformSyncFetchesAndDeduplicatesArticles() = runBlocking {
-        val source1 = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON).first()
+        val sources = repository.parseSourcesJson(NewsSourceRepository.DEFAULT_SOURCES_JSON)
+        val source1 = sources.first()
 
         // Pre-insert an existing article into DB
         val existingArticle = NewsArticle(
@@ -82,7 +147,7 @@ class NewsCrawlerWorkerTest {
             }
         )
 
-        assertEquals(6, syncResult.fetchedTotal) // 3 sources * 2 articles = 6
+        assertEquals(sources.size * 2, syncResult.fetchedTotal) // 7 sources * 2 articles = 14
         // Deduplication: hash_100 is duplicate per source, hash_200 is new per source
         assertTrue(syncResult.newArticlesCount > 0)
 

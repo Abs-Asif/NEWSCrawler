@@ -5,13 +5,14 @@ import abdullah.bari.asif.model.NewsSource
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import it.skrape.selects.DocElement
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 class SitemapFetcher(
     private val httpClient: HttpClient = HttpClient(),
-    private val maxArticlesToFetch: Int = 15
+    private val maxArticlesToFetch: Int = 50
 ) : NewsFetcher {
 
     override suspend fun fetchArticles(source: NewsSource): List<NewsArticle> {
@@ -40,53 +41,91 @@ class SitemapFetcher(
         val doc = parseXmlSafe(xmlContent) ?: return emptyList()
         val fetchedAt = Clock.System.now().toEpochMilliseconds()
 
+        // Handle sitemapindex by fetching child sitemaps if present
+        val sitemapElements = doc.findAllSafe("sitemap")
+        if (sitemapElements.isNotEmpty()) {
+            val childArticles = mutableListOf<NewsArticle>()
+            val childLocs = sitemapElements.mapNotNull {
+                it.findAllSafe("loc").firstOrNull()?.text?.trim()
+            }.filter { it.isNotBlank() }
+
+            // Prioritize post/news/article sitemaps
+            val preferredLocs = childLocs.filter { loc ->
+                loc.contains("post", ignoreCase = true) ||
+                        loc.contains("news", ignoreCase = true) ||
+                        loc.contains("article", ignoreCase = true) ||
+                        loc.contains("daily", ignoreCase = true)
+            }.ifEmpty { childLocs }
+
+            for (childLoc in preferredLocs.take(2)) {
+                try {
+                    val childXml = httpClient.get(resolveUrl(source.baseUrl, childLoc)).bodyAsText()
+                    val childDoc = parseXmlSafe(childXml) ?: continue
+                    val subArticles = parseUrlElements(childDoc.findAllSafe("url"), source, fetchedAt)
+                    childArticles.addAll(subArticles)
+                    if (childArticles.size >= maxArticlesToFetch) break
+                } catch (e: Exception) {
+                    // Ignore child sitemap fetch failure
+                }
+            }
+            if (childArticles.isNotEmpty()) {
+                return childArticles.take(maxArticlesToFetch)
+            }
+        }
+
         val urlElements = doc.findAllSafe("url")
+        return parseUrlElements(urlElements, source, fetchedAt)
+    }
+
+    private fun parseUrlElements(
+        urlElements: List<DocElement>,
+        source: NewsSource,
+        fetchedAt: Long
+    ): List<NewsArticle> {
         val articles = mutableListOf<NewsArticle>()
 
-        val targetElements = urlElements.take(maxArticlesToFetch)
+        for (urlEl in urlElements) {
+            if (articles.size >= maxArticlesToFetch) break
 
-        for (urlEl in targetElements) {
             val loc = urlEl.findAllSafe("loc").firstOrNull()?.text?.trim() ?: continue
             if (loc.isBlank()) continue
 
             val fullArticleUrl = resolveUrl(source.baseUrl, loc)
-            val lastmod = urlEl.findAllSafe("lastmod").firstOrNull()?.text?.trim()
+
+            // Extract Google News title or standard title tag in XML
+            val xmlTitle = urlEl.findAllSafe("news\\:title").firstOrNull()?.text?.cleanCdataAndEntities()
                 ?.ifBlank { null }
+                ?: urlEl.findAllSafe("title").firstOrNull()?.text?.cleanCdataAndEntities()
+                    ?.ifBlank { null }
+
+            // Extract publication date in XML
+            val pubDate = urlEl.findAllSafe("news\\:publication_date").firstOrNull()?.text?.trim()
+                ?.ifBlank { null }
+                ?: urlEl.findAllSafe("lastmod").firstOrNull()?.text?.trim()
+                    ?.ifBlank { null }
                 ?: Clock.System.now().toString()
 
-            var title: String? = null
-            var imageUrl: String? = null
+            // Extract image in XML
+            val imageUrl = urlEl.findAllSafe("image\\:loc").firstOrNull()?.text?.trim()
+                ?.ifBlank { null }
+                ?: urlEl.findAllSafe("image\\:image").firstOrNull()?.findAllSafe("image\\:loc")?.firstOrNull()?.text?.trim()
+                    ?.ifBlank { null }
 
-            try {
-                val pageHtml = httpClient.get(fullArticleUrl).bodyAsText()
-                val pageDoc = parseHtmlSafe(pageHtml)
-                if (pageDoc != null) {
-                    title = pageDoc.findAllSafe("meta[property='og:title']").firstOrNull()?.getAttr("content")
-                        ?.cleanCdataAndEntities()
-                        ?.ifBlank { null }
-                        ?: pageDoc.findAllSafe("meta[name='twitter:title']").firstOrNull()?.getAttr("content")
-                            ?.cleanCdataAndEntities()
-                            ?.ifBlank { null }
-                        ?: pageDoc.findAllSafe("title").firstOrNull()?.text
-                            ?.cleanCdataAndEntities()
-                            ?.ifBlank { null }
-
-                    imageUrl = pageDoc.findAllSafe("meta[property='og:image']").firstOrNull()?.getAttr("content")
-                        ?.ifBlank { null }
-                        ?: pageDoc.findAllSafe("meta[name='twitter:image']").firstOrNull()?.getAttr("content")
-                            ?.ifBlank { null }
-                }
-            } catch (e: Exception) {
-                // Ignore single article network fetch error, fallback below
-            }
+            var title: String? = xmlTitle
 
             if (title.isNullOrBlank() || title == "404" || title.contains("Page Not Found", ignoreCase = true)) {
                 val slug = fullArticleUrl.substringAfterLast('/').substringBefore('?').substringBefore('#')
-                title = slug.replace('-', ' ').replace('_', ' ').replace(Regex("\\.html?$"), "")
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                val slugClean = slug.replace(Regex("-\\d+$"), "")
+                    .replace('-', ' ')
+                    .replace('_', ' ')
+                    .replace(Regex("\\.html?$"), "")
+                    .trim()
+                if (slugClean.length > 3) {
+                    title = slugClean.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                }
             }
 
-            if (title.isBlank()) continue
+            if (title.isNullOrBlank()) continue
 
             val fullImageUrl = imageUrl?.let { resolveUrl(source.baseUrl, it) }
 
@@ -99,7 +138,7 @@ class SitemapFetcher(
                     title = title,
                     articleUrl = fullArticleUrl,
                     imageUrl = fullImageUrl,
-                    publishedAt = lastmod,
+                    publishedAt = pubDate,
                     fetchedAt = fetchedAt
                 )
             )

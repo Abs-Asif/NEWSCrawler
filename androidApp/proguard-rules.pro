@@ -1,5 +1,5 @@
-# Keep attributes for reflection and serialization
--keepattributes *Annotation*,ElementValuePairs,Signature,InnerClasses,EnclosingMethod
+# Keep attributes for reflection, serialization, and stack traces
+-keepattributes *Annotation*,ElementValuePairs,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
 
 # Keep all App Packages
 -keep class abdullah.bari.asif.** { *; }
@@ -25,7 +25,9 @@
     ***[] values();
 }
 
-# Keep WorkManager Workers
+# Keep WorkManager Workers & Initializers
+-keep class androidx.work.** { *; }
+-keepclassmembers class androidx.work.** { *; }
 -keep class * extends androidx.work.ListenableWorker {
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
@@ -43,8 +45,20 @@
 # Keep Ktor & OkHttp
 -keep class io.ktor.** { *; }
 -keepclassmembers class io.ktor.** { *; }
+-keep class io.ktor.client.engine.** { *; }
+-keepclassmembers class io.ktor.client.engine.** { *; }
+-keep class io.ktor.client.engine.okhttp.** { *; }
+-keepclassmembers class io.ktor.client.engine.okhttp.** { *; }
 -keep class okhttp3.** { *; }
 -keepclassmembers class okhttp3.** { *; }
+
+# Keep XML DOM/SAX services & parsers
+-keep class org.w3c.dom.** { *; }
+-keepclassmembers class org.w3c.dom.** { *; }
+-keep class org.apache.xml.** { *; }
+-keepclassmembers class org.apache.xml.** { *; }
+-keep class org.apache.xalan.** { *; }
+-keepclassmembers class org.apache.xalan.** { *; }
 
 # Keep SQLite & DB drivers
 -keep class android.database.sqlite.** { *; }

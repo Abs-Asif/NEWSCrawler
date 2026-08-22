@@ -30,6 +30,19 @@ class DatabaseDaoTest {
     }
 
     @Test
+    fun testSettingsDaoOperations() = runBlocking {
+        val settingsDao = database.settingsDao
+
+        assertEquals("default_val", settingsDao.getSetting("fetch_interval", "default_val"))
+
+        settingsDao.saveSetting("fetch_interval", "HOUR_1")
+        assertEquals("HOUR_1", settingsDao.getSetting("fetch_interval", "default_val"))
+
+        settingsDao.saveSetting("show_images", "false")
+        assertEquals("false", settingsDao.getSetting("show_images", "true"))
+    }
+
+    @Test
     fun testSourceDaoOperations() = runBlocking {
         val sourceDao = database.sourceDao
 

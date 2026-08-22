@@ -14,22 +14,22 @@ class StoreAndSettingsTest {
 
     @Test
     fun testSearchFilteringInStore() {
-        val query = "medical"
+        val query = "The Hindu"
         val filtered = sources.filter {
             it.name.contains(query, ignoreCase = true) || it.baseUrl.contains(query, ignoreCase = true)
         }
         assertEquals(1, filtered.size)
-        assertEquals("med_news_today_rss", filtered.first().id)
+        assertEquals("the_hindu_sitemap", filtered.first().id)
     }
 
     @Test
     fun testSearchFilteringByUrl() {
-        val query = "who.int"
+        val query = "thehindu.com"
         val filtered = sources.filter {
             it.name.contains(query, ignoreCase = true) || it.baseUrl.contains(query, ignoreCase = true)
         }
         assertEquals(1, filtered.size)
-        assertEquals("who_sitemap", filtered.first().id)
+        assertEquals("the_hindu_sitemap", filtered.first().id)
     }
 
     @Test

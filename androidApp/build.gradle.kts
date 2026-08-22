@@ -83,8 +83,6 @@ android {
             excludes += "META-INF/notice.txt"
             excludes += "META-INF/ASL2.0"
             excludes += "mozilla/public-suffix-list.txt"
-            excludes += "META-INF/services/org.apache.xalan.extensions.bsf.BSFManager"
-            excludes += "META-INF/services/org.w3c.dom.DOMImplementationSourceList"
         }
     }
 }
